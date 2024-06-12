@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #000;
+        color: #fff;
+    }
+    #lap-times {
+        text-align: left;
+        margin-top: 10px;
+    }
+    #display {
+        font-size: 2em;
+    }
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
+<h1>Stopwatch</h1>
+<div>
+    <p id="display">00:00:00</p>
+    <button id="startStop" onclick="startStop()">Start</button>
+    <button id="lapReset" onclick="lapReset()">Lap</button>
+    <button id="reset" onclick="reset()">Reset</button>
+</div>
+<div id="lap-times"></div>
+<script>
+    let timer;
+    let running = false;
+    let startTime;
+    let lapStartTime;
+    let lapCounter = 1;
+
+    function startStop() {
+        if (!running) {
+            startTimer();
+            document.getElementById("startStop").innerText = "Pause";
+            running = true;
+        } else {
+            clearInterval(timer);
+            document.getElementById("startStop").innerText = "Resume";
+            running = false;
+        }
+    }
+
+    function startTimer() {
+        let storedTime = 0;
+        if (startTime) {
+            storedTime = new Date().getTime() - startTime;
+        }
+        startTime = new Date().getTime() - storedTime;
+        lapStartTime = new Date().getTime();
+        timer = setInterval(updateDisplay, 10);
+    }
+
+    function updateDisplay() {
+        let currentTime = new Date().getTime();
+        let elapsedTime = currentTime - startTime;
+        let lapTime = currentTime - lapStartTime;
+
+        let minutes = Math.floor(elapsedTime / (1000 * 60));
+        let seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+        let milliseconds = Math.floor((elapsedTime % 1000) / 10);
+
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+        milliseconds = (milliseconds < 10) ? "0" + milliseconds : milliseconds;
+
+        document.getElementById("display").innerText = minutes + ":" + seconds + ":" + milliseconds;
+    }
+
+    function lapReset() {
+        if (running) {
+            let currentTime = new Date().getTime();
+            let lapTime = currentTime - lapStartTime;
+            let lapMinutes = Math.floor(lapTime / (1000 * 60));
+            let lapSeconds = Math.floor((lapTime % (1000 * 60)) / 1000);
+            let lapMilliseconds = Math.floor((lapTime % 1000) / 10);
+            lapMinutes = (lapMinutes < 10) ? "0" + lapMinutes : lapMinutes;
+            lapSeconds = (lapSeconds < 10) ? "0" + lapSeconds : lapSeconds;
+            lapMilliseconds = (lapMilliseconds < 10) ? "0" + lapMilliseconds : lapMilliseconds;
+            let lapTimeString = lapCounter + ". " + lapMinutes + ":" + lapSeconds + ":" + lapMilliseconds + "<br>";
+            document.getElementById("lap-times").innerHTML += lapTimeString;
+            lapCounter++;
+            lapStartTime = currentTime;
+        } else {
+            reset();
+        }
+    }
+
+    function reset() {
+        clearInterval(timer);
+        document.getElementById("display").innerText = "00:00:00";
+        document.getElementById("startStop").innerText = "Start";
+        document.getElementById("lap-times").innerText = "";
+        running = false;
+        startTime = null;
+        lapCounter = 1;
+    }
+</script>
+</body>
+</html>
